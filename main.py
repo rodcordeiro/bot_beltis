@@ -1,14 +1,15 @@
 import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher import Dispatcher, filters
+from decouple import config
 import os, platform
 from datetime import datetime,timezone,timedelta
 import json
 
-API_TOKEN = '1002827916:AAEhImaGPUb62h3XYAsKlCH_EcCWaAnFt-g'
 logging.basicConfig(level=logging.INFO)
 
 # Initialize bot and dispatcher
+API_TOKEN = config('API_TOKEN')
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
@@ -42,6 +43,14 @@ def gravar(dado):
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
     await message.reply("Akta On!\nEste robo é para informações da Akta. Comandos:\n - /con: retorna testes de pings de alguns ips chave;\n - /ping - pinga o ip específicado e retorna o resultado (/ping 192.168.30.1 );\n - /auth solicita autorização para executar os comandos")
+
+@dp.message_handler(commands=['dados'])
+async def infos(message: types.Message):
+    await message.reply(message)
+@dp.message_handler(commands=['teste'])
+async def teste(message: types.Message):
+    await bot.send_poll(1016560417,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None,reply_to_message_id='962')
+
 
 @dp.message_handler(commands=['con'])
 async def test_con(message: types.Message):
@@ -114,8 +123,8 @@ if __name__ == '__main__':
      ___       __  ___ .___________.     ___         .___________.     __     .______     ______   .___________.
     /   \     |  |/  / |           |    /   \        |           |    |  |    |   _  \   /  __  \  |           |
    /  ^  \    |  '  /  `---|  |----`   /  ^  \       `---|  |----`    |  |    |  |_)  | |  |  |  | `---|  |----`
-  /  /_\  \   |    <       |  |       /  /_\  \          |  |         |  |    |   _  <  |  |  |  |     |  |     
- /  _____  \  |  .  \      |  |      /  _____  \         |  |      __ |  |    |  |_)  | |  `--'  |     |  |     
-/__/     \__\ |__|\__\     |__|     /__/     \__\        |__|     (__)|__|    |______/   \______/      |__|                                                                                                                 
+  /  /_\  \   |    <       |  |       /  /_\  \          |  |         |  |    |   _  <  |  |  |  |     |  |
+ /  _____  \  |  .  \      |  |      /  _____  \         |  |      __ |  |    |  |_)  | |  `--'  |     |  |
+/__/     \__\ |__|\__\     |__|     /__/     \__\        |__|     (__)|__|    |______/   \______/      |__|
 """)
     executor.start_polling(dp, skip_updates=True)
