@@ -3,7 +3,7 @@ import logging
 from aiogram import types, Bot
 from decouple import config
 
-from messages_controller import extract_user_object
+from messages_controller import extract_user_object, extract_message_object, extract_chat_object
 
 bot = Bot(token= config('API_TOKEN'))
 
@@ -16,10 +16,16 @@ class BeltisBot:
     def run_bot(self):
         @self.dispatcher.message_handler(commands=['start', 'help'])
         async def send_welcome(message: types.Message):
-            await message.reply("Beltis TI bot. \n\n AINDA EM PRODUÇÃO")
+            await message.reply("""Beltis TI bot. 
+ *AINDA EM PRODUÇÃO*
 
-        @self.dispatcher.message_handler(commands=['teste'])
+ Available commands:
+  - /help: Provides the command list;
+  - /getid: Returns the user id, used to setup the zabbix notifications;
+  
+""")
+
+        @self.dispatcher.message_handler(commands=['getid'])
         async def testMessage(message: types.Message):
-            print(message)
             msg = extract_user_object(message)
             await message.reply(msg.telegram_id)
