@@ -26,6 +26,13 @@ class BeltisBot:
 """)
 
         @self.dispatcher.message_handler(commands=['getid'])
-        async def testMessage(message: types.Message):
+        async def return_user_id(message: types.Message):
             msg = extract_user_object(message)
             await message.reply(msg.telegram_id)
+        
+
+
+        @self.dispatcher.message_handler(commands=['teste'])
+        async def testMessage(message: types.Message):
+            print(message)
+            await message.reply(message)
