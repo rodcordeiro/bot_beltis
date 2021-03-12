@@ -1,4 +1,5 @@
 import logging
+from decouple import config
 
 from aiogram import Dispatcher, executor, types
 from bot import BeltisBot, bot
