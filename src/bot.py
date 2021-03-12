@@ -35,4 +35,6 @@ class BeltisBot:
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
             print(message)
+            await self.bot.send_message(1021953062,"Bot startado")
             await message.reply(message)
+    
