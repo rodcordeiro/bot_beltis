@@ -31,8 +31,8 @@ class BeltisBot:
             msg = extract_user_object(message)
             await message.reply(msg.telegram_id)
 
-        @self.dispatcher.message_handler(commands=['getticket'])
-        async def return_ticket_status(message: types.Message):
+        @self.dispatcher.message_handler(commands=['ticket'])
+        async def ticket_handler(message: types.Message):
             ticket_id = message.text.split(' ')[1]
             await message.reply(ticket_id)
         
