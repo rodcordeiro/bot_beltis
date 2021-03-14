@@ -1,9 +1,10 @@
-import os,platform
+import requests
 import json
 from decouple import config
 
 from .Session import sessionController
 from .Tickets import ticketController
+from .User import userController
 
 class glpi:
     """
@@ -13,13 +14,11 @@ class glpi:
         self.app_token = config("GLPI_APPTOKEN")
         self.session = sessionController(self.app_token)
         self.session_token = self.session.session_token
+        self.users = userController(self)
+        self.techs = self.users.getTechs()
         self.tickets = ticketController(self)
         
-
-    def start(self):
-        self.app_token = config("GLPI_APPTOKEN")
-        self.session_token = self.getToken()
-
-    def getToken(self):
-        token = sessionController(self.app_token).createSession()
-        return token
+    
+    def getTicket(self,ticket_id):
+        ticket = self.tickets.getTicket(ticket_id)
+        return ticket

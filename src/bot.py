@@ -24,6 +24,7 @@ class BeltisBot:
  Available commands:
   - /help: Provides the command list;
   - /getid: Returns the user id, used to setup the zabbix notifications;
+  - /ticket ID: Returns information about the ticket provided 
 """)
 
         @self.dispatcher.message_handler(commands=['getid'])
@@ -33,8 +34,13 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['ticket'])
         async def ticket_handler(message: types.Message):
-            ticket_id = message.text.split(' ')[1]
-            await message.reply(ticket_id)
+            if (len(message.text) > 7):
+                ticket_id = message.text.split(' ')[1]
+                ticket_status =  self.glpi.getTicket(ticket_id)
+                await message.reply(ticket_status)
+            else:
+                await message.reply("Criar ticket")
+
         
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):

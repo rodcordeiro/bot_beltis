@@ -14,8 +14,20 @@ class ticketController:
         """
         self.app_token = app.app_token
         self.session_token = app.session_token
+        self.techs = app.techs
+        self.ticket_status = ["novo", "processando (atríbuido)", "processando (planejado)", "Pendente", "Solucionado", "Fechado"]
+        self.ticket_request_type = {
+            4: "Direct",
+            2: "E-mail",
+            1: "Helpdesk",
+            6: "Other",
+            3: "Phone",
+            7: "Whatsapp",
+            5: "Written"
+        }
+        
 
-    def getTickets(self,id=None):
+    def getTicket(self,id):
         """
         Returns the last month tickets, if :id is provided it filters for the user.
 
@@ -28,21 +40,45 @@ class ticketController:
         :param id: ID to be used for filtering the requester of the tickets.
         """
 
-        url = config("GLPI_BASEURL") + "/Ticket"
-        querystring = {
-            "Content-Type":"application/json",
-            "app_token":self.app_token,
-            "session_token":self.session_token,
-            "range":"0-99999",
-            "order":"DESC"
-            }
-        if id:
-            querystring["criteria[0][itemtype]"]= "Ticket"
-            querystring["criteria[0][searchtype]"]= "equals"
-            querystring["criteria[0][value]"]: id
-            querystring["criteria[0][field]"]: "7"
+        url = config("GLPI_BASEURL") + "/Ticket/" + id
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
         payload = ""
-        response = requests.request("GET", url, data=payload, params=querystring)
+        response = requests.request("GET", url, data=payload,headers=headers)
+        if response.status_code == 200:
+            ticket = response.json()
+            ticket['status'] = self.ticket_status[ticket['status'] - 1]
+            ticket['requesttypes_id'] = self.ticket_request_type[ticket['requesttypes_id']]
+            ticket['followups'] = self.getTicketFollowup(id)
+            try:
+                ticket['tech'] = self.techs[ticket['users_id_recipient']]
+            except:
+                ticket['tech'] = "Analista não encontrado"
+            ticket_message = f"""---------------------------------
+    Ticket ID: {ticket['id']}
+    Ticket name: {ticket['name']}
+    Ticket description: {ticket['content']}
+
+    Aberto pelo analista: {ticket['tech']}
+    Ticket status: {ticket['status']}
+
+    ---------------------------------
+    Acompanhamentos:
+
+    """     
+            for followup in ticket['followups']:
+                ticket_message += f""">{self.techs[followup['users_id']]} em {followup['date']}:
+    | {followup['content']}
+
+    """
+            ticket_message +="---------------------------------\n"
+            return ticket_message
+        return "Ticket não encontrado"
+        
+    def getTicketFollowup(self,id):
+        url = config("GLPI_BASEURL") + "/Ticket/{}/TicketFollowup/".format(id)
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        payload = ""
+        response = requests.request("GET", url, data=payload,headers=headers)
         return response.json()
         
     def getTicketsLastMonth(self,id=None):
