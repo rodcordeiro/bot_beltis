@@ -48,11 +48,13 @@ class ticketController:
             ticket = response.json()
             ticket['status'] = self.ticket_status[ticket['status'] - 1]
             ticket['requesttypes_id'] = self.ticket_request_type[ticket['requesttypes_id']]
-            ticket['followups'] = self.getTicketFollowup(id)
+            ticket['followups'] = self.getTicketFollowups(id)
             try:
                 ticket['tech'] = self.techs[ticket['users_id_recipient']]
             except:
                 ticket['tech'] = "Analista não encontrado"
+            ticket['documents'] = self.getTicketDocuments(id)
+            
             ticket_message = f"""---------------------------------
     Ticket ID: {ticket['id']}
     Ticket name: {ticket['name']}
@@ -61,26 +63,48 @@ class ticketController:
     Aberto pelo analista: {ticket['tech']}
     Ticket status: {ticket['status']}
 
-    ---------------------------------
-    Acompanhamentos:
-
-    """     
+---------------------------------
+Acompanhamentos:
+  """     
             for followup in ticket['followups']:
                 ticket_message += f""">{self.techs[followup['users_id']]} em {followup['date']}:
     | {followup['content']}
 
-    """
-            ticket_message +="---------------------------------\n"
+  """
+            ticket_message +="---------------------------------"
             return ticket_message
         return "Ticket não encontrado"
         
-    def getTicketFollowup(self,id):
+    def getTicketFollowups(self,id):
         url = config("GLPI_BASEURL") + "/Ticket/{}/TicketFollowup/".format(id)
         headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
         payload = ""
-        response = requests.request("GET", url, data=payload,headers=headers)
-        return response.json()
-        
+        response = requests.request("GET", url, data=payload,headers=headers).json()
+        return response
+
+    def getTicketDocuments(self,id):
+        url = config("GLPI_BASEURL") + "/Ticket/{}/Document_Item/".format(id)
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        payload = ""
+        response = requests.request("GET", url, data=payload,headers=headers).json()
+        documents = []
+        for document in response:
+            document['filename'] = self.getDocumentName(document['id'])
+            try:
+                document['author'] = self.techs[document['users_id']]
+            except:
+                document['author'] = "Analista não encontrado"
+            
+            documents.append(document)
+        return documents
+
+    def getDocumentName(self,id):
+        url = config("GLPI_BASEURL") + "/Document/{}".format(id)
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        payload = ""
+        response = requests.request("GET", url, data=payload,headers=headers).json()
+        return response.get('filename')
+
     def getTicketsLastMonth(self,id=None):
         """
         Returns the last month tickets, if :id is provided it filters for the user.

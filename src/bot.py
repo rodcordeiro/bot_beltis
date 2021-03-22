@@ -11,20 +11,24 @@ bot = Bot(token= config('API_TOKEN'))
 class BeltisBot:
     def __init__(self, dispatcher):
         self.dispatcher = dispatcher
+        self.bot_name = "Beltis TI bot"
+        self.bot_description = "*AINDA EM PRODUÇÃO*"
         self.bot = bot
+        self.version = open("./version","r").read()
         self.glpi = glpi()
         self.run_bot()
 
     def run_bot(self):
         @self.dispatcher.message_handler(commands=['start', 'help'])
         async def send_welcome(message: types.Message):
-            await message.reply("""Beltis TI bot. 
- *AINDA EM PRODUÇÃO*
+            await message.reply(f"""{self.bot_name}. 
+ {self.bot_description}
 
  Available commands:
-  - /help: Provides the command list;
-  - /getid: Returns the user id, used to setup the zabbix notifications;
-  - /ticket ID: Returns information about the ticket provided 
+  - /help: Retorna a lista de comandos habilitados;
+  - /getid: Retorna seu id de usuário, esta informação é utilizada pelo suporte para habilitar notificações;
+  - /ticket ID: Retorna as informações sobre um ticket específico;
+  - /validate: Validates bot information and session connections
 """)
 
         @self.dispatcher.message_handler(commands=['getid'])
@@ -47,7 +51,11 @@ class BeltisBot:
             print(message)
             await message.reply(message)
     
-        @self.dispatcher.message_handler(commands=['validateGLPI'])
+        @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
-            await message.reply("App-Token: {}\nSession-Token: {}".format(self.glpi.app_token,self.glpi.session_token))
+            await message.reply(f">- BOT:\n    {self.bot_name} {self.version}\n\n>- GLPI:\n    App-Token: {self.glpi.app_token}\n    Session-Token: {self.glpi.session_token}")
+    
+        @self.dispatcher.message_handler()
+        async def messages_helper(message: types.Message):
+            await message.reply("Oi, ainda não estou configurado para ser um chatbot completo, mas se estiver precisando de ajuda use /help que eu te mostro o que já posso fazer!")
     
