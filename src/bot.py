@@ -5,6 +5,7 @@ from decouple import config
 
 from messages_controller import extract_user_object, extract_message_object, extract_chat_object
 from controllers.glpi import glpi
+from controllers.zabbix import zabbix
 
 bot = Bot(token= config('API_TOKEN'))
 
@@ -16,6 +17,7 @@ class BeltisBot:
         self.bot = bot
         self.version = open("./version","r").read()
         self.glpi = glpi()
+        self.zabbix = zabbix()
         self.run_bot()
 
     def run_bot(self):
@@ -45,7 +47,14 @@ class BeltisBot:
             else:
                 await message.reply("Criar ticket")
 
-        
+        @self.dispatcher.message_handler(commands=['zhost'])
+        async def zabbix_host(message: types.Message):
+            if (len(message.text) <= 6):
+                response = self.zabbix.getHosts()
+                await message.reply(response)
+            else:
+                await message.reply("Criar ticket")
+
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
             print(message)
@@ -53,7 +62,7 @@ class BeltisBot:
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
-            await message.reply(f">- BOT:\n    {self.bot_name} {self.version}\n\n>- GLPI:\n    App-Token: {self.glpi.app_token}\n    Session-Token: {self.glpi.session_token}")
+            await message.reply(f">- BOT:\n    {self.bot_name} {self.version}\n\n>- GLPI:\n    App-Token: {self.glpi.app_token}\n    Session-Token: {self.glpi.session_token}\n\n>- Zabbix:\n    User: {self.zabbix.session['alias']}\n    Session: {self.zabbix.session['sessionid']}")
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
