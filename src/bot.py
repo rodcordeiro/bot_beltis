@@ -1,5 +1,5 @@
 import logging
-
+import os
 from aiogram import types, Bot
 from decouple import config
 
@@ -15,12 +15,13 @@ class BeltisBot:
         self.bot_name = "Beltis TI bot"
         self.bot_description = "*AINDA EM PRODUÇÃO*"
         self.bot = bot
-        self.version = open("./version","r").read()
+        self.version = "1"
         self.glpi = glpi()
         self.zabbix = zabbix()
         self.run_bot()
 
     def run_bot(self):
+        print(os.path.realpath('./version'))
         @self.dispatcher.message_handler(commands=['start', 'help'])
         async def send_welcome(message: types.Message):
             await message.reply(f"""{self.bot_name}. 
