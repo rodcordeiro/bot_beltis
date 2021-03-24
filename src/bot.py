@@ -15,7 +15,7 @@ class BeltisBot:
         self.bot_name = "Beltis TI bot"
         self.bot_description = "*AINDA EM PRODUÇÃO*"
         self.bot = bot
-        self.version = open(os.path.join(os.curdir,'version'),'r').read()
+        self.version = "1.8"
         self.glpi = glpi()
         self.zabbix = zabbix()
         self.run_bot()
@@ -47,17 +47,14 @@ class BeltisBot:
             else:
                 await message.reply("Criar ticket")
 
-        @self.dispatcher.message_handler(commands=['zhost'])
+        @self.dispatcher.message_handler(commands=['zhosts'])
         async def zabbix_host(message: types.Message):
-            if (len(message.text) <= 6):
-                response = self.zabbix.getHosts()
-                await message.reply(response)
-            else:
-                await message.reply("Criar ticket")
+            response = self.zabbix.getHosts()
+            await message.reply(response)
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
-            path=os.path.join(os.path.expandvars("$BOT_PATH"),'version')
+            path=os.path.join(os.path.split(os.path.dirname(__file__))[0],'version')
             print(path)
             print(message)
             await message.reply(path)
@@ -68,5 +65,7 @@ class BeltisBot:
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
-            await message.reply("Oi, ainda não estou configurado para ser um chatbot completo, mas se estiver precisando de ajuda use /help que eu te mostro o que já posso fazer!")
-    
+            if message.chat.type != "group" or message.entities[0].type == "bot_command":
+                await message.reply("Oi, ainda não estou configurado para ser um chatbot completo, mas se estiver precisando de ajuda use /help que eu te mostro o que já posso fazer!")
+            else:
+                return
