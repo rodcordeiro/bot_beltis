@@ -15,10 +15,15 @@ class BeltisBot:
         self.bot_name = "Beltis TI bot"
         self.bot_description = "*AINDA EM PRODUÇÃO*"
         self.bot = bot
-        self.version = "1.8"
+        self.get_version()
         self.glpi = glpi()
         self.zabbix = zabbix()
         self.run_bot()
+
+    def get_version(self):
+        path=os.path.join(os.path.split(os.path.dirname(__file__))[0],'version')
+        version=open(path,'r').read()
+        self.version=version
 
     def run_bot(self):
         @self.dispatcher.message_handler(commands=['start', 'help'])
@@ -54,10 +59,8 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
-            path=os.path.join(os.path.split(os.path.dirname(__file__))[0],'version')
-            print(path)
             print(message)
-            await message.reply(path)
+            await message.reply(message)
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
