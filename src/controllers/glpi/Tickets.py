@@ -55,24 +55,34 @@ class ticketController:
                 ticket['tech'] = "Analista não encontrado"
             ticket['documents'] = self.getTicketDocuments(id)
             
-            ticket_message = f"""---------------------------------
-    Ticket ID: {ticket['id']}
-    Ticket name: {ticket['name']}
-    Ticket description: {ticket['content']}
+            ticket_message = f"""*Ticket ID:* `{ticket['id']}`
+*Ticket name:* `{ticket['name']}`
+*Ticket description:* `{ticket['content']}`
 
-    Aberto pelo analista: {ticket['tech']}
-    Ticket status: {ticket['status']}
+Aberto pelo analista: {ticket['tech']}
+Ticket status: {ticket['status']}
 
 ---------------------------------
 Acompanhamentos:
   """     
             for followup in ticket['followups']:
-                ticket_message += f""">{self.techs[followup['users_id']]} em {followup['date']}:
-    | {followup['content']}
+                ticket_message += f"""> `{self.techs[followup['users_id']]}` em `{followup['date']}:`
+    | _{followup['content']}_
 
   """
             ticket_message +="---------------------------------"
-            return ticket_message
+            try:
+                return ticket_message
+            except:
+                return f"""*Ticket ID:* `{ticket['id']}`
+*Ticket name:* `{ticket['name']}`
+*Ticket description:* `{ticket['content']}`
+
+Aberto pelo analista: {ticket['tech']}
+Ticket status: {ticket['status']}
+
+*Ticket possui muitos acompanhamentos, não sendo possível o encaminhamento de todos*
+"""
         return "Ticket não encontrado"
         
     def getTicketFollowups(self,id):
