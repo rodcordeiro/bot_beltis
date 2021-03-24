@@ -21,7 +21,6 @@ class BeltisBot:
         self.run_bot()
 
     def run_bot(self):
-        print(os.path.relpath('./version', start=os.curdir),"\n\nos.curdir",os.curdir)
         @self.dispatcher.message_handler(commands=['start', 'help'])
         async def send_welcome(message: types.Message):
             await message.reply(f"""{self.bot_name}. 
@@ -58,8 +57,11 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
+            print(os.path.relpath('./version', start=os.curdir))
+            print(os.curdir)
+            diretorio=os.curdir
             print(message)
-            await message.reply(message)
+            await message.reply(diretorio)
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
