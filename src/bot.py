@@ -57,8 +57,10 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
+            path=os.system('pwd')
+            print(path)
             print(message)
-            await message.reply(message)
+            await message.reply(path)
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
