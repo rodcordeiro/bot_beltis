@@ -57,7 +57,7 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
-            path=os.system('pwd')
+            path=os.path.join(os.path.expandvars("${BOT_PATH}"),'version')
             print(path)
             print(message)
             await message.reply(path)
