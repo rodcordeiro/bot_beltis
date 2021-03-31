@@ -83,7 +83,8 @@ Ticket status: {ticket['status']}
 
 *Ticket possui muitos acompanhamentos, não sendo possível o encaminhamento de todos*
 """
-        return response.text
+        else:
+            return False
         
     def getTicketFollowups(self,id):
         url = config("GLPI_BASEURL") + "/Ticket/{}/TicketFollowup/".format(id)
