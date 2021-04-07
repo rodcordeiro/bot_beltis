@@ -14,7 +14,7 @@ class ticketController:
         """
         self.app_token = app.app_token
         self.session_token = app.session_token
-        self.techs = app.techs
+        # self.techs = app.techs
         self.ticket_status = ["novo", "processando (atríbuido)", "processando (planejado)", "Pendente", "Solucionado", "Fechado"]
         self.ticket_request_type = {
             4: "Direct",

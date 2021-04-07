@@ -34,16 +34,27 @@ class BeltisBot:
 
  Available commands:
   - /help: Retorna a lista de comandos habilitados;
-  - /getid: Retorna seu id de usuário, esta informação é utilizada pelo suporte para habilitar notificações;
-  - /ticket ID: Retorna as informações sobre um ticket específico;
-  - /validate: Validates bot information and session connections
+  - /getid: Retorna seu id de usuário do telegram;
+  - /getgroup: Retorna a id do grupo;
 """)
+
+#   - /ticket ID: Retorna as informações sobre um ticket específico;
+#   - /validate: Validates bot information and session connections
 
         @self.dispatcher.message_handler(commands=['getid'])
         async def return_user_id(message: types.Message):
             await bot.send_chat_action(message.chat.id,"typing")
             msg = extract_user_object(message)
             await message.reply(msg.telegram_id)
+        
+        @self.dispatcher.message_handler(commands=['getgroup'])
+        async def return_user_id(message: types.Message):
+            await bot.send_chat_action(message.chat.id,"typing")
+            chat = extract_chat_object(message)
+            if chat.chat_type != "group":
+                await message.reply("Por favor, execute este comando em um grupo para que a informação possa ser retornada corretamente.")
+            else:
+                await message.reply(chat.chat_id)
 
         @self.dispatcher.message_handler(commands=['ticket'])
         async def ticket_handler(message: types.Message):
@@ -79,7 +90,7 @@ class BeltisBot:
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
-            if message.chat.type != "group" or message.entities[0].type == "bot_command":
+            if message.chat.type != "group" and message.entities[0].type == "bot_command":
                 await message.reply("Oi, ainda não estou configurado para ser um chatbot completo ou não reconheço este comando, mas se estiver precisando de ajuda use /help que eu te mostro o que já posso fazer!")
             else:
                 return
