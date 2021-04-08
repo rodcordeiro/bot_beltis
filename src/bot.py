@@ -6,6 +6,7 @@ from decouple import config
 from messages_controller import extract_user_object, extract_message_object, extract_chat_object
 from controllers.glpi import glpi
 from controllers.zabbix import zabbix
+from database.connection import Database
 
 bot = Bot(token= config('API_TOKEN'),parse_mode="markdown")
 
@@ -18,6 +19,7 @@ class BeltisBot:
         self.get_version()
         self.glpi = glpi()
         self.zabbix = zabbix()
+        self.database = Database()
         self.run_bot()
 
     def get_version(self):
@@ -86,7 +88,11 @@ class BeltisBot:
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
             await bot.send_chat_action(message.chat.id,"typing")
-            await message.reply(f">- *BOT:*\n    _{self.bot_name}_ `{self.version}`\n\n>- *GLPI:*\n    _App-Token:_ `{self.glpi.app_token}`\n    _Session-Token:_ `{self.glpi.session_token}`\n\n>- *Zabbix:*\n    _User:_ `{self.zabbix.session['alias']}`\n    _Session:_ `{self.zabbix.session['sessionid']}`")
+            user = self.database.validate_admin_exist(message)
+            if user:
+                await message.reply(f">- *BOT:*\n    _{self.bot_name}_ `{self.version}`\n\n>- *GLPI:*\n    _App-Token:_ `{self.glpi.app_token}`\n    _Session-Token:_ `{self.glpi.session_token}`\n\n>- *Zabbix:*\n    _User:_ `{self.zabbix.session['alias']}`\n    _Session:_ `{self.zabbix.session['sessionid']}`")
+            else:
+                await message.reply("Comando não autorizado")
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
