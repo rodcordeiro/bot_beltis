@@ -33,14 +33,12 @@ class Database():
     def get_user(self, message):
         self.ping
         user = extract_user_object(message)
-        check_user = self.cursor.execute(f"select * from users u where u.is_admin = true and u.telegram_id = {user.telegram_id}")
+        check_user = self.cursor.execute(f"select * from users u where u.telegram_id = {user.telegram_id}")
         if (check_user == 0):
             return False
         check_user = self.cursor.fetchone()
-        print(check_user)
         user.is_admin = bool(check_user[4])
-        user.admin_level = check_user[5]
-        user.glpi_user = check_user[6]
+        user.admin_level = check_user[6] if check_user[6] != None else 0
+        user.glpi_user = check_user[5]
         user.zabbix_user = check_user[3]
         return user
-
