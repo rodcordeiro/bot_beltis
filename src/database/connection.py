@@ -38,7 +38,7 @@ class Database():
             return False
         check_user = self.cursor.fetchone()
         user.is_admin = check_user[4]
-        user.admin_level = check_user[5]
+        user.admin_level = int(check_user[5])
         user.glpi_user = check_user[6]
         user.zabbix_user = check_user[3]
         return user

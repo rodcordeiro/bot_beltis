@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT telegram_id_UNIQUE UNIQUE (telegram_id)
 );
 ALTER TABLE `users` ADD COLUMN `glpi_user` varchar(255);
-ALTER TABLE `users` ADD COLUMN `admin_level` INTEGER(2);
+ALTER TABLE `users` ADD COLUMN `admin_level` INTEGER(2) default 0;
