@@ -103,7 +103,7 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
-            user = extract_user_object(message)
+            user = self.database.get_user(message)
             print(user.telegram_id)
             print(user.first_name)
             print(user.last_name)
@@ -113,6 +113,16 @@ class BeltisBot:
             print(user.admin_level)
             print(user.glpi_user)
             print(user.zabbix_user)
+            
+            await message.reply(user.telegram_id)
+            await message.reply(user.first_name)
+            await message.reply(user.last_name)
+            await message.reply(user.username)
+            await message.reply(user.is_bot)
+            await message.reply(user.is_admin)
+            await message.reply(user.admin_level)
+            await message.reply(user.glpi_user)
+            await message.reply(user.zabbix_user)
             await message.reply(message)
     
         @self.dispatcher.message_handler(commands=['validate'])
