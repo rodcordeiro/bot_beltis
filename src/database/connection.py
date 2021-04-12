@@ -23,17 +23,23 @@ class Database():
         self.cursor = self.db.cursor()
         self.ping = self.db.ping(True)
 
-    def validate_admin_exist(self, message):
+    def is_admin(self, user_id):
+        self.ping
+        check_user = self.cursor.execute(f"select admin_level from users u where u.is_admin = true and u.telegram_id = {user_id}")
+        if (check_user == 0):
+            return False
+        return self.cursor.fetchone()
+
+    def get_user(self, message):
         self.ping
         user = extract_user_object(message)
         check_user = self.cursor.execute(f"select * from users u where u.is_admin = true and u.telegram_id = {user.telegram_id}")
         if (check_user == 0):
             return False
-        return True
+        check_user = self.cursor.fetchone()
+        user.is_admin = check_user[4]
+        user.admin_level = check_user[5]
+        user.glpi_user = check_user[6]
+        user.zabbix_user = check_user[3]
+        return user
 
-    def chat_exists(self, chat_id):
-        self.ping
-        check_chat = self.cursor.execute(f"SELECT * FROM chats WHERE chat_id={chat_id}")
-        if (check_chat == 0):
-            return False
-        return self.cursor.fetchone()

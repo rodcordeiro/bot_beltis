@@ -17,16 +17,37 @@ class BeltisBot:
         self.bot_description = "*AINDA EM PRODUÇÃO*"
         self.bot = bot
         self.get_version()
-        self.glpi = glpi()
-        self.zabbix = zabbix()
-        self.database = Database()
+        self.connections = {
+            "glpi": False,
+            "zabbix": False,
+            "database": False
+        }
+        self.connect()
         self.run_bot()
-
+        
+        
+        
     def get_version(self):
         path=os.path.join(os.path.split(os.path.dirname(__file__))[0],'version')
         version=open(path,'r').read()
         self.version=version
 
+    def connect(self):
+        try:
+            self.glpi = glpi()
+            self.connections['glpi'] = True
+        except:
+            pass
+        try:
+            self.zabbix = zabbix()
+            self.connections['zabbix'] = True
+        except:
+            pass
+        try:
+            self.database = Database()
+            self.connections['database'] = True
+        except:
+            pass
 
     def run_bot(self):
         @self.dispatcher.message_handler(commands=['start', 'help'])
@@ -82,17 +103,38 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['teste'])
         async def testMessage(message: types.Message):
-            print(message)
+            user = extract_user_object(message)
+            print(user.telegram_id)
+            print(user.first_name)
+            print(user.last_name)
+            print(user.username)
+            print(user.is_bot)
+            print(user.is_admin)
+            print(user.admin_level)
+            print(user.glpi_user)
+            print(user.zabbix_user)
             await message.reply(message)
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
             await bot.send_chat_action(message.chat.id,"typing")
-            user = self.database.validate_admin_exist(message)
-            if user:
-                await message.reply(f">- *BOT:*\n    _{self.bot_name}_ `{self.version}`\n\n>- *GLPI:*\n    _App-Token:_ `{self.glpi.app_token}`\n    _Session-Token:_ `{self.glpi.session_token}`\n\n>- *Zabbix:*\n    _User:_ `{self.zabbix.session['alias']}`\n    _Session:_ `{self.zabbix.session['sessionid']}`")
-            else:
+            if self.connections['database'] == False:
+                await message.reply("Bot em manutenção. Por favor, contate os administradores.")
+                return
+            user = self.database.get_user(message)
+            if user.is_admin == False:
                 await message.reply("Comando não autorizado")
+            else:
+                msg = f">- *BOT:*\n    _{self.bot_name}_ `{self.version}`"
+                msg += f"\n\n>- *Database:*\n    Status: `{self.connections['database']}`"
+                msg += f"\n\n>- *GLPI:*\n    Status: `{self.connections['glpi']}`"
+                if user.admin_level >= 3:
+                    msg += f"\n    _App-Token:_ `{self.glpi.app_token}`\n    _Session-Token:_ `{self.glpi.session_token}`"
+                msg += f"\n\n>- *Zabbix:*\n    Status: `{self.connections['zabbix']}`\n"
+                if user.admin_level >= 3:
+                    msg += f"    _User:_ `{self.zabbix.session['alias']}`\n    _Session:_ `{self.zabbix.session['sessionid']}`"
+                await message.reply(msg)
+                
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
