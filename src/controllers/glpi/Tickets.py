@@ -84,7 +84,7 @@ Ticket status: {ticket['status']}
 *Ticket possui muitos acompanhamentos, não sendo possível o encaminhamento de todos*
 """
         else:
-            return False
+            return response.text
         
     def getTicketFollowups(self,id):
         url = config("GLPI_BASEURL") + "/Ticket/{}/TicketFollowup/".format(id)
@@ -166,6 +166,39 @@ Ticket status: {ticket['status']}
         payload = ""
         response = requests.request("GET", url, data=payload, params=querystring)
         return response.json().get("data")
+
+    def createTicket(self,title,description,user):
+        """
+        Returns the last month tickets, if :id is provided it filters for the user.
+
+        Examples:
+
+        .. code-block:: python
+
+            getTicketsLastMonth(13)
+
+        :param id: ID to be used for filtering the requester of the tickets.
+        """
+
+        url = config("GLPI_BASEURL") + "/Ticket/"
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        payload = json.dumps({
+	"input": {
+		"name": title,
+		"content": description,
+		"urgency": 5,
+		"impact": 3,
+		"type": 2,
+		"itilcategories_id": 22,
+		"requesttypes_id": 8
+	}
+})
+        response = requests.request("POST", url, data=payload,headers=headers)
+        ticket = response.json().get('id')
+        return ticket
+        
+        
+
 
 def getMonth():
     date = datetime.date.today()

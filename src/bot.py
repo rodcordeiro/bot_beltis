@@ -6,6 +6,7 @@ from decouple import config
 from messages_controller import extract_user_object, extract_message_object, extract_chat_object
 from controllers.glpi import glpi
 from controllers.zabbix import zabbix
+from controllers.validation import validation
 from database.connection import Database
 
 bot = Bot(token= config('API_TOKEN'),parse_mode="markdown")
@@ -23,6 +24,7 @@ class BeltisBot:
             "database": False
         }
         self.connect()
+        self.validation = validation(self)
         self.run_bot()
         
         
@@ -81,13 +83,16 @@ class BeltisBot:
 
         @self.dispatcher.message_handler(commands=['ticket'])
         async def ticket_handler(message: types.Message):
+            await bot.send_chat_action(message.chat.id,"typing")
             if (len(message.text) > 7):
                 ticket_id = message.text.split(' ')[1]
-                await bot.send_chat_action(message.chat.id,"typing")
                 ticket_status =  self.glpi.getTicket(ticket_id)
                 await message.reply(ticket_status)
             else:
-                await message.reply("Criar ticket")
+                chat = extract_chat_object(message)
+                user = extract_user_object(message)
+                response = self.validation.ticket_creation_process(user.telegram_id,chat.chat_id)
+                await message.reply(response)
 
         @self.dispatcher.message_handler(commands=['zhosts'])
         async def zabbix_hosts(message: types.Message):
@@ -113,16 +118,6 @@ class BeltisBot:
             print(user.admin_level)
             print(user.glpi_user)
             print(user.zabbix_user)
-            
-            await message.reply(user.telegram_id)
-            await message.reply(user.first_name)
-            await message.reply(user.last_name)
-            await message.reply(user.username)
-            await message.reply(user.is_bot)
-            await message.reply(user.is_admin)
-            await message.reply(user.admin_level)
-            await message.reply(user.glpi_user)
-            await message.reply(user.zabbix_user)
             await message.reply(message)
     
         @self.dispatcher.message_handler(commands=['validate'])
@@ -135,7 +130,7 @@ class BeltisBot:
             if user.is_admin == False:
                 await message.reply("Comando não autorizado")
             else:
-                msg = f">- *BOT:*\n    _{self.bot_name}_ `{self.version}`"
+                msg = f">- *BOT:*\n    _{self.bot_name}_  `{self.version}`"
                 msg += f"\n\n>- *Database:*\n    Status: `{self.connections['database']}`"
                 msg += f"\n\n>- *GLPI:*\n    Status: `{self.connections['glpi']}`"
                 if user.admin_level >= 3:
@@ -148,7 +143,12 @@ class BeltisBot:
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
-            if message.chat.type != "group" and message.entities[0].type == "bot_command":
-                await message.reply("Oi, ainda não estou configurado para ser um chatbot completo ou não reconheço este comando, mas se estiver precisando de ajuda use /help que eu te mostro o que já posso fazer!")
+            if message.chat.type != "group":
+                chat = extract_chat_object(message)
+                user = extract_user_object(message)
+                response = self.validation.running_proccess(user.telegram_id,chat.chat_id,message)
+                if response:
+                    print(response)
+                    await message.reply(response)
             else:
                 return

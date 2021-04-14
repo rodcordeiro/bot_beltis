@@ -16,13 +16,17 @@ class glpi:
         self.session_token = self.session.session_token
         self.users = userController(self)
         self.tickets = ticketController(self)
+        
 
     def getTicket(self,ticket_id):
         ticket = self.tickets.getTicket(ticket_id)
-        if ticket:
-            return ticket
-        else:
-            self.session = sessionController(self.app_token)
-            self.session_token = self.session.session_token
-            self.getTicket(ticket_id)
-        
+        return ticket
+        # self.session = sessionController(self.app_token)
+        # self.session_token = self.session.session_token
+        # self.getTicket(ticket_id)
+    
+    def create_ticket(self,title,description,user):
+        user = user.glpi_user
+        ticket = self.tickets.createTicket(title,description,user)
+        return ticket
+    

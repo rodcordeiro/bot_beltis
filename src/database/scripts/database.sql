@@ -16,3 +16,21 @@ CREATE TABLE IF NOT EXISTS users (
 );
 ALTER TABLE `users` ADD COLUMN `glpi_user` varchar(255);
 ALTER TABLE `users` ADD COLUMN `admin_level` INTEGER(2) default 0;
+
+CREATE TABLE IF NOT EXISTS status_control (
+    id integer auto_increment primary key,
+    user_id varchar(255) not null,
+    chat_id varchar(255) not null,
+    proccess varchar(100) not null,
+    datetime datetime not null
+    stage integer default 0,
+    completed boolean default false
+);
+CREATE TABLE IF NOT EXISTS ticket_creation (
+    id integer auto_increment primary key,
+    proccess_id integer not null,
+    title varchar(255),
+    description varchar(100),
+    CONSTRAINT procress_id_UNIQUE UNIQUE (proccess_id),
+    CONSTRAINT FOREIGN KEY (proccess_id) REFERENCES status_control(id)
+);

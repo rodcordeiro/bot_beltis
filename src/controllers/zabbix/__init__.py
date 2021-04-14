@@ -12,8 +12,6 @@ class zabbix:
         self.zabbix.login(user=config('ZABBIX_USER'),password=config('ZABBIX_PWD'))
         self.session = self.zabbix.check_authentication()
         self.hosts = self.zabbix.host.get({"output":"extend"})
-        
-        
 
     def getHosts(self):
         response = []

@@ -7,7 +7,7 @@
 #########################################################################
 
 from MySQLdb import MySQLError, connect
-
+import datetime
 from decouple import config
 
 from messages_controller import extract_message_object, extract_chat_object, extract_user_object
@@ -16,6 +16,7 @@ from messages_controller import extract_message_object, extract_chat_object, ext
 class Database():
     def __init__(self):
         self.connect()
+
 
     def connect(self):
         self.db = connect(host=config("DB_HOST"), db=config("DB_NAME"),
@@ -42,3 +43,49 @@ class Database():
         user.glpi_user = check_user[5]
         user.zabbix_user = check_user[3]
         return user
+    
+    def get_running_proccess(self,user_id, chat_id):
+        response = self.cursor.execute(f"select id,stage,datetime,proccess from status_control sc where sc.user_id='{user_id}' and sc.chat_id = '{chat_id}' and sc.completed = 'false';")
+        if response == 0:
+            return False
+        else:
+            response = self.cursor.fetchone()
+        return response
+    
+
+    def get_proccess_stage(self,user_id, chat_id, process):
+        query = f"select id,stage,datetime from status_control sc where sc.user_id='{user_id}' and sc.chat_id = '{chat_id}' and sc.proccess like '{process}' and sc.completed = 'false';"
+        response = self.cursor.execute(f"select id,stage,datetime from status_control sc where sc.user_id='{user_id}' and sc.chat_id = '{chat_id}' and sc.proccess like '{process}' and sc.completed = 'false';")
+        if response == 0:
+            response = self.create_proccess_stage(user_id, chat_id, process)
+        else:
+            response = self.cursor.fetchone()
+        return response
+    
+    def create_proccess_stage(self,user_id, chat_id, process):
+        date = datetime.datetime.now()
+        response = self.cursor.execute(f"insert into status_control(user_id,chat_id,proccess,datetime) values('{user_id}', '{chat_id}', '{process}', '{date}');")
+        id = self.cursor.execute(f"select id,stage,datetime from status_control sc where sc.user_id='{user_id}' and sc.chat_id = '{chat_id}' and sc.proccess like '{process}' and sc.completed = 'false' order by id desc limit 1;")
+        id = self.cursor.fetchone()
+        self.db.commit()
+        return id
+    
+    def update_proccess_stage(self,process_id, column,value):
+        self.cursor.execute(f"update status_control set {column} = '{value}' where id = '{process_id}'")        
+        self.db.commit()
+
+    def create_ticket_task(self,process_id):
+        self.cursor.execute(f"insert into ticket_creation(proccess_id) value ('{process_id}');")
+        self.db.commit()
+    
+    def update_ticket_data(self,process_id, column,value):
+        self.cursor.execute(f"update ticket_creation set {column} = '{value}' where proccess_id = '{process_id}'")        
+        self.db.commit()
+
+    def get_ticket_data(self,process_id):
+        self.cursor.execute(f"select title,description from ticket_creation t where t.proccess_id = '{process_id}';")
+        return self.cursor.fetchone()
+
+    def delete_ticket_data(self,process_id):
+        self.cursor.execute(f"delete from  ticket_creation where proccess_id = '{process_id}'")        
+        self.db.commit()
