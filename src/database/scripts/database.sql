@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS status_control (
     user_id varchar(255) not null,
     chat_id varchar(255) not null,
     proccess varchar(100) not null,
-    datetime datetime not null
+    datetime datetime not null,
     stage integer default 0,
     completed boolean default false
 );

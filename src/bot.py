@@ -54,17 +54,21 @@ class BeltisBot:
     def run_bot(self):
         @self.dispatcher.message_handler(commands=['start', 'help'])
         async def send_welcome(message: types.Message):
-            await message.reply(f"""*{self.bot_name}.*
+            user = self.database.get_user(message)
+            help_message=f"""*{self.bot_name}.*
  _{self.bot_description}_
 
  Available commands:
   - /help: Retorna a lista de comandos habilitados;
   - /getid: Retorna seu id de usuário do telegram;
   - /getgroup: Retorna a id do grupo;
-""")
+"""
+            if user:
+                help_message+="""   - /ticket ID: Retorna as informações sobre um ticket específico;
+   - /validate: Validates bot information and session connections"""
 
-#   - /ticket ID: Retorna as informações sobre um ticket específico;
-#   - /validate: Validates bot information and session connections
+            await message.reply(help_message)
+
 
         @self.dispatcher.message_handler(commands=['getid'])
         async def return_user_id(message: types.Message):
