@@ -1,3 +1,45 @@
+import base64
+import requests
+import json
+from decouple import config
+
+class sessionController:
+    def __init__(self,app_token):
+        self.app_token = app_token
+        self.encode("rodrigo.cordeiro:@Drigo13")
+        self.session_token = ''
+        self.createSession()
+    
+    def createSession(self):
+        url = config("GLPI_BASEURL") + "/initSession"
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Authorization":"Basic {}".format(self.authorizationToken)}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            token = response.json().get("session_token")
+            self.session_token = token
+        else:
+            return False
+
+    def encode(self,data):
+        message = data
+        message_bytes = message.encode('ascii')
+        encodedToken = base64.b64encode(message_bytes)
+        token = encodedToken.decode('ascii')
+        self.authorizationToken = token
+    
+    def getProfiles(self):
+        url = config("GLPI_BASEURL") + "/getMyProfiles"
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        response = requests.get(url, headers=headers)
+        return response.json()
+
+
+session = sessionController(config("GLPI_APPTOKEN"))
+
+print(session.getProfiles())
+
+
+
 # import logging
 # from aiogram import Bot, Dispatcher, executor, types
 # from aiogram.dispatcher import Dispatcher, filters

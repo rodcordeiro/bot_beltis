@@ -110,19 +110,15 @@ class BeltisBot:
             response = self.zabbix.getHost()
             await message.reply(response)
 
-        @self.dispatcher.message_handler(commands=['teste'])
+        @self.dispatcher.message_handler(commands=['info'])
         async def testMessage(message: types.Message):
             user = self.database.get_user(message)
-            print(user.telegram_id)
-            print(user.first_name)
-            print(user.last_name)
-            print(user.username)
-            print(user.is_bot)
-            print(user.is_admin)
-            print(user.admin_level)
-            print(user.glpi_user)
-            print(user.zabbix_user)
+            print(user,message)
             await message.reply(message)
+        @dp.message_handler(commands=['teste'])
+            async def teste(message: types.Message):
+                await bot.send_poll(1016560417,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None,reply_to_message_id='962')
+
     
         @self.dispatcher.message_handler(commands=['validate'])
         async def validate_glpi_api(message: types.Message):
@@ -152,7 +148,6 @@ class BeltisBot:
                 user = extract_user_object(message)
                 response = self.validation.running_proccess(user.telegram_id,chat.chat_id,message)
                 if response:
-                    print(response)
                     await message.reply(response)
             else:
                 return

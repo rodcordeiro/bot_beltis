@@ -18,9 +18,19 @@ class sessionController:
         else:
             return False
     
-    def killSession(self):
+    def create_user_session(self,token):
+        url = config("GLPI_BASEURL") + "/initSession"
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Authorization":"Basic {}".format(token)}
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            token = response.json().get("session_token")
+            return token
+        else:
+            return False
+
+    def killSession(self,session_token):
         url = config("GLPI_BASEURL") + "/killSession"
-        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":session_token}
         response = requests.get(url, headers=headers)
         return response.status_code
     

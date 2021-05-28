@@ -89,3 +89,25 @@ class Database():
     def delete_ticket_data(self,process_id):
         self.cursor.execute(f"delete from  ticket_creation where proccess_id = '{process_id}'")        
         self.db.commit()
+
+    def register_glpi_task(self,process_id):
+        self.cursor.execute(f"insert into glpi_user_registration(proccess_id) value ('{process_id}');")
+        self.db.commit()
+    
+    def update_glpiRegistration_data(self,process_id, column,value):
+        self.cursor.execute(f"update glpi_user_registration set {column} = '{value}' where proccess_id = '{process_id}'")        
+        self.db.commit()
+
+    def get_glpiRegistration_data(self,process_id):
+        self.cursor.execute(f"select user from glpi_user_registration t where t.proccess_id = '{process_id}';")
+        return self.cursor.fetchone()
+    
+    def delete_glpiRegistration_data(self,process_id):
+        self.cursor.execute(f"delete from  glpi_user_registration where proccess_id = '{process_id}'")        
+        self.db.commit()
+    
+    def register_glpi_user(self,user,token):
+        self.cursor.execute(f"insert into users(glpi_user) value ('{token}') where telegram_id = '{user}'';")
+        self.db.commit()
+        
+    

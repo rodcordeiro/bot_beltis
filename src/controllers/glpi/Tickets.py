@@ -167,7 +167,7 @@ Ticket status: {ticket['status']}
         response = requests.request("GET", url, data=payload, params=querystring)
         return response.json().get("data")
 
-    def createTicket(self,title,description,user):
+    def createTicket(self,title,description,session):
         """
         Returns the last month tickets, if :id is provided it filters for the user.
 
@@ -181,7 +181,7 @@ Ticket status: {ticket['status']}
         """
 
         url = config("GLPI_BASEURL") + "/Ticket/"
-        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":self.session_token}
+        headers={"Content-Type":"application/json","App-Token":self.app_token,"Session-Token":session}
         payload = json.dumps({
 	"input": {
 		"name": title,

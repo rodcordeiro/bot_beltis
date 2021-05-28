@@ -34,3 +34,11 @@ CREATE TABLE IF NOT EXISTS ticket_creation (
     CONSTRAINT procress_id_UNIQUE UNIQUE (proccess_id),
     CONSTRAINT FOREIGN KEY (proccess_id) REFERENCES status_control(id)
 );
+
+CREATE TABLE IF NOT EXISTS glpi_user_registration (
+    id integer auto_increment primary key,
+    proccess_id integer not null,
+    user varchar(255),
+    CONSTRAINT procress_id_UNIQUE UNIQUE (proccess_id),
+    CONSTRAINT FOREIGN KEY (proccess_id) REFERENCES status_control(id)
+);

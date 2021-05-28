@@ -27,6 +27,7 @@ class glpi:
     
     def create_ticket(self,title,description,user):
         user = user.glpi_user
-        ticket = self.tickets.createTicket(title,description,user)
+        session = self.session.create_user_session(user)
+        ticket = self.tickets.createTicket(title,description,session)
         return ticket
     
