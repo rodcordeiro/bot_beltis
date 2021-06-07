@@ -115,9 +115,10 @@ class BeltisBot:
             user = self.database.get_user(message)
             print(user,message)
             await message.reply(message)
+        
         @dp.message_handler(commands=['teste'])
-            async def teste(message: types.Message):
-                await bot.send_poll(1016560417,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None,reply_to_message_id='962')
+        async def teste(message: types.Message):
+            await bot.send_poll(1016560417,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None,reply_to_message_id='962')
 
     
         @self.dispatcher.message_handler(commands=['validate'])
