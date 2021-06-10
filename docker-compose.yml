@@ -8,7 +8,6 @@ services:
           - ./src/database/scripts/ /docker-entrypoint-initdb.d/
     ports:
       - "3306:3306"
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: B3lt1s
       MYSQL_DATABASE: telegrambot
