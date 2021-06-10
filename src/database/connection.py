@@ -107,7 +107,7 @@ class Database():
         self.db.commit()
     
     def register_glpi_user(self,user,token):
-        self.cursor.execute(f"insert into users(glpi_user) value ('{token}') where telegram_id = '{user}'';")
+        self.cursor.execute(f"update users set glpi_user = '{token}' where telegram_id = {user};")
         self.db.commit()
         
     

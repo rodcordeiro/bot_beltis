@@ -29,10 +29,15 @@ class validation:
         if processo == "ticket_create":
             task = self.ticket_creation_process(user_id, chat_id, process,message)
         
+        if processo == "glpi_registration":
+            task = self.glpi_registration_process(user_id, chat_id, process,message)
+        
         return task
 
+    async def validate_glpi_user(self,token):
+        return True
 
-    def ticket_creation_process(self, user_id, chat_id, task = None,message = None):
+    async def ticket_creation_process(self, user_id, chat_id, task = None,message = None):
         if task == None:
             process = self.app.database.get_proccess_stage(user_id, chat_id, "ticket_create")
         else:
@@ -76,7 +81,7 @@ class validation:
                 return f"Chamado aberto sob ID #{ticket_id} e pode ser acompanhado atráves deste [Link](http://glpi.beltis.com.br/glpi/front/ticket.form.php?id={ticket_id}). A equipe foi notificada e entrará em contato em breve."
             return "Não foi possível abrir o chamado no momento, por favor tente novamente mais tarde."
 
-    def glpi_registration_process(self, user_id, chat_id, task = None,message = None):
+    async def glpi_registration_process(self, user_id, chat_id, task = None,message = None):
         if task == None:
             process = self.app.database.get_proccess_stage(user_id, chat_id, "glpi_registration")
         else:
@@ -101,19 +106,26 @@ class validation:
             self.app.database.register_glpi_task(id)
             self.app.database.update_proccess_stage(id, "stage",1)
             return "Por favor, informe seu usuário do GLPI"
-    
+
         if status == 1:
             self.app.database.update_glpiRegistration_data(id,"user",message.text)
             self.app.database.update_proccess_stage(id, "stage",2)
             return "Por favor, informe sua senha"
 
         if status == 2:
+            msg = extract_message_object(message)
             self.app.database.update_proccess_stage(id, "completed",1)
             glpi_user = self.app.database.get_glpiRegistration_data(id)
-            token = self.encode(f"{glpi_user}:{message.text}")
-            self.app.database.register_glpi_user(user_id,token)
+            token = self.encode(f"{glpi_user}:{msg.text}")
+            
+            # Tentar criar uma sessão com o usuário para validar.
+            await self.app.bot.delete_message(msg.chat_id,msg.message_id)
             self.app.database.delete_glpiRegistration_data(id)
-            return "*Cadastrado!*/n Agora você poderá abrir usar mais funcionalidades do GLPI, como abrir chamados."
+            
+            session = self.validate_glpi_user(token)
+            if session:
+                self.app.database.register_glpi_user(user_id,token)
+                return "*Cadastrado!*/n Agora você poderá abrir usar mais funcionalidades do GLPI, como abrir chamados."
 
 
 

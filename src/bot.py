@@ -95,9 +95,26 @@ class BeltisBot:
             else:
                 chat = extract_chat_object(message)
                 user = extract_user_object(message)
-                response = self.validation.ticket_creation_process(user.telegram_id,chat.chat_id)
+                response = await self.validation.ticket_creation_process(user.telegram_id,chat.chat_id)
                 await message.reply(response)
-
+        
+        @self.dispatcher.message_handler(commands=['glpi'])
+        async def registrate_glpi_user(message: types.Message):
+            await bot.send_chat_action(message.chat.id,"typing")
+            if self.connections['database'] == False:
+                await message.reply("Bot em manutenção. Por favor, contate os administradores.")
+                return
+            else:
+                user = self.database.get_user(message)
+                if user.glpi_user:
+                    await message.reply("Usuário já cadastrado")
+                else:
+                    chat = extract_chat_object(message)
+                    user = extract_user_object(message)
+                    response = await self.validation.glpi_registration_process(user.telegram_id,chat.chat_id)
+                    await message.reply(response)
+                
+        
         @self.dispatcher.message_handler(commands=['zhosts'])
         async def zabbix_hosts(message: types.Message):
             await bot.send_chat_action(message.chat.id,"typing")
@@ -116,9 +133,16 @@ class BeltisBot:
             print(user,message)
             await message.reply(message)
         
-        @dp.message_handler(commands=['teste'])
+        @self.dispatcher.message_handler(commands=['create_poll'])
         async def teste(message: types.Message):
-            await bot.send_poll(1016560417,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None,reply_to_message_id='962')
+            msg = await bot.send_poll(1021953062,'Qual a boa?',['Supimpa','Tranquilo','Só desgraça','Irineu'],disable_notification=None)
+            print(msg)
+
+        @self.dispatcher.message_handler(commands=['get_poll'])
+        async def teste(message: types.Message):
+            msg = await bot.stop_poll(1021953062,3941)
+            print(msg)
+            await message.reply(msg)
 
     
         @self.dispatcher.message_handler(commands=['validate'])
@@ -128,7 +152,7 @@ class BeltisBot:
                 await message.reply("Bot em manutenção. Por favor, contate os administradores.")
                 return
             user = self.database.get_user(message)
-            if user.is_admin == False:
+            if user.is_admin == False or user == False:
                 await message.reply("Comando não autorizado")
             else:
                 msg = f">- *BOT:*\n    _{self.bot_name}_  `{self.version}`"
@@ -140,15 +164,15 @@ class BeltisBot:
                 if user.admin_level >= 3:
                     msg += f"    _User:_ `{self.zabbix.session['alias']}`\n    _Session:_ `{self.zabbix.session['sessionid']}`"
                 await message.reply(msg)
-                
+            
     
         @self.dispatcher.message_handler()
         async def messages_helper(message: types.Message):
             if message.chat.type != "group":
                 chat = extract_chat_object(message)
                 user = extract_user_object(message)
-                response = self.validation.running_proccess(user.telegram_id,chat.chat_id,message)
+                response = await self.validation.running_proccess(user.telegram_id,chat.chat_id,message)
                 if response:
-                    await message.reply(response)
+                    await bot.send_message(chat.chat_id,response)
             else:
                 return
