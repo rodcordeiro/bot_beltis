@@ -1,6 +1,6 @@
 aiogram==2.14.3
 python-decouple==3.4
-setuptools==58.0.3
+setuptools==58.0.4
 requests==2.26.0
 pyzabbix==1.0.0
 mysqlclient==2.0.3
