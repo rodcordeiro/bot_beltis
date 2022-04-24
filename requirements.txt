@@ -1,4 +1,4 @@
-aiogram==2.14.3
+aiogram==2.20
 python-decouple==3.4
 setuptools==58.0.4
 requests==2.26.0
