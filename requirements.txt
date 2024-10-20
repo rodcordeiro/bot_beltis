@@ -3,4 +3,4 @@ python-decouple==3.6
 setuptools==58.5.3
 requests==2.26.0
 pyzabbix==1.0.0
-mysqlclient==2.0.3
+mysqlclient==2.2.5
